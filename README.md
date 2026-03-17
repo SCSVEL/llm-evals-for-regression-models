@@ -68,6 +68,25 @@ This project implements a complete pipeline for building and evaluating regressi
   - **A/B Testing Framework**: For comparing model versions
   - **Monitoring and Drift Detection**: For real-time deployment
 
+
+## Usage
+1. Place your CSV files in the `data/raw/` directory
+2. Run the Jupyter notebook `notebooks/regression_pipeline.ipynb`
+3. Review evaluation results in `results/` directory
+
+## Report
+Generated evaluation report is here - [results/evaluation_report.md](results/evaluation_report.md)
+
+## FastAPI Response
+Simple API to get the data and feed to UI for my testing purpose - [api/README.md](api/README.md)
+
+## LLM Eval Specific Considerations
+- Focus on regression tasks common in LLM evaluation (e.g., quality scoring, performance prediction)
+- Ensure evaluation metrics align with business objectives
+- Implement continuous monitoring for model performance in production
+- Consider fairness and bias evaluation for LLM outputs
+
+
 ## Project Structure
 ```
 llm-evals-for-regression/
@@ -96,19 +115,3 @@ llm-evals-for-regression/
 - xgboost (optional)
 - lightgbm (optional)
 
-## Usage
-1. Place your CSV files in the `data/raw/` directory
-2. Run the Jupyter notebook `notebooks/regression_pipeline.ipynb`
-3. Review evaluation results in `results/` directory
-
-## Report
-Generated evaluation report is here - results\evaluation_report.md
-
-## FastAPI Response
-Simple API to get the data and feed to UI for my testing purpose - api\README.md
-
-## LLM Eval Specific Considerations
-- Focus on regression tasks common in LLM evaluation (e.g., quality scoring, performance prediction)
-- Ensure evaluation metrics align with business objectives
-- Implement continuous monitoring for model performance in production
-- Consider fairness and bias evaluation for LLM outputs
