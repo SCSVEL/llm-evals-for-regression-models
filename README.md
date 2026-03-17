@@ -101,6 +101,12 @@ llm-evals-for-regression/
 2. Run the Jupyter notebook `notebooks/regression_pipeline.ipynb`
 3. Review evaluation results in `results/` directory
 
+## Report
+Generated evaluation report is here - results\evaluation_report.md
+
+## FastAPI Response
+Simple API to get the data and feed to UI for my testing purpose - api\README.md
+
 ## LLM Eval Specific Considerations
 - Focus on regression tasks common in LLM evaluation (e.g., quality scoring, performance prediction)
 - Ensure evaluation metrics align with business objectives
