@@ -74,6 +74,9 @@ This project implements a complete pipeline for building and evaluating regressi
 2. Run the Jupyter notebook `notebooks/regression_pipeline.ipynb`
 3. Review evaluation results in `results/` directory
 
+## Notebook for learning
+[notebooks/regression_pipeline.ipynb](notebooks/regression_pipeline.ipynb)
+
 ## Report
 Generated evaluation report is here - [results/evaluation_report.md](results/evaluation_report.md)
 
