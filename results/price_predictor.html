@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Price Predictor - Interactive Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .predictor-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+        
+        .input-panel {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .input-panel h2 {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+        
+        .form-group .help-text {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-predict {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-predict:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-clear {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        .btn-clear:hover {
+            background: #d0d0d0;
+        }
+        
+        .result-panel {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 8px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 350px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-content {
+            text-align: center;
+            width: 100%;
+        }
+        
+        .result-content.empty {
+            color: #999;
+        }
+        
+        .result-content.empty p {
+            font-size: 1.1em;
+        }
+        
+        .result-content.loaded {
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .result-label {
+            color: #667eea;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .result-date {
+            color: #333;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .result-price {
+            color: #667eea;
+            font-size: 2.8em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .result-info {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            color: #666;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+        
+        .chart-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chart-section h2 {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+        
+        .date-range-info {
+            background: #e8eef7;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 5px;
+            color: #555;
+            font-size: 0.95em;
+            margin-bottom: 20px;
+        }
+        
+        .date-range-info strong {
+            color: #667eea;
+        }
+        
+        footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .error {
+            color: #d32f2f;
+            background: #ffebee;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #d32f2f;
+        }
+        
+        .success {
+            color: #2e7d32;
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2e7d32;
+        }
+        
+        .tab-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .tab-btn {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            color: #666;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+        
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        @media (max-width: 1024px) {
+            .predictor-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .form-group input,
+            .form-group select {
+                padding: 10px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏠 Home Price Predictor</h1>
+            <p>State College, PA - Interactive Price Prediction Tool</p>
+        </header>
+        
+        <div class="content">
+            <!-- Date Range Info -->
+            <div class="date-range-info">
+                <strong>📅 Available Data Range:</strong> Historical data (July 2005 - January 2026) and Future predictions (February 2026 - January 2031)
+            </div>
+            
+            <!-- Predictor Section -->
+            <div class="predictor-section">
+                <div class="input-panel">
+                    <h2>🔍 Find Price</h2>
+                    
+                    <div class="form-group">
+                        <label for="month">Month</label>
+                        <select id="month" required>
+                            <option value="">Select Month</option>
+                            <option value="01">January</option>
+                            <option value="02">February</option>
+                            <option value="03">March</option>
+                            <option value="04">April</option>
+                            <option value="05">May</option>
+                            <option value="06">June</option>
+                            <option value="07">July</option>
+                            <option value="08">August</option>
+                            <option value="09">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="year">Year</label>
+                        <input type="number" id="year" min="2005" max="2031" placeholder="e.g., 2026">
+                        <div class="help-text">Enter a year between 2005 and 2031</div>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button class="btn-predict" onclick="predictPrice().catch(e => console.error(e))">Get Price</button>
+                        <button class="btn-clear" onclick="clearForm()">Clear</button>
+                    </div>
+                    
+                    <div id="errorMessage"></div>
+                </div>
+                
+                <div class="result-panel">
+                    <div class="result-content empty" id="resultContent">
+                        <p>👆 Select month and year to see the predicted price</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chart Section -->
+            <div class="chart-section">
+                <div class="tab-controls">
+                    <button class="tab-btn active" data-type="all" onclick="handleTabClick('all')">Full Timeline</button>
+                    <button class="tab-btn" data-type="future" onclick="handleTabClick('future')">Future 5 Years</button>
+                    <button class="tab-btn" data-type="history" onclick="handleTabClick('history')">Past 5 Years</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>🏠 Home Price Predictor | State College, PA | Zillow Data</p>
+            <p style="font-size: 0.9em; margin-top: 10px; opacity: 0.7;">Predictions based on Random Forest Regression Model with 99.98% accuracy</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Global variables
+        let predictions = [];
+        let chart = null;
+        let isDataLoaded = false;
+
+        // API base URL - change this to your API server URL
+        const API_BASE_URL = 'http://localhost:8000';
+
+        // Get prediction for specific date
+        async function getPredictionForDate(year, month) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/predictions/${year}/${month}`);
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        return null; // No data for this date
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching prediction:', error);
+                return null;
+            }
+        }
+
+        // Get date range information
+        async function getDateRange() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/date-range`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching date range:', error);
+                return { min_date: null, max_date: null };
+            }
+        }
+
+        async function predictPrice() {
+            const month = document.getElementById('month').value;
+            const year = document.getElementById('year').value;
+            const errorDiv = document.getElementById('errorMessage');
+            const resultDiv = document.getElementById('resultContent');
+            
+            errorDiv.innerHTML = '';
+            
+            if (!month || !year) {
+                errorDiv.innerHTML = '<div class="error">❌ Please select both month and year</div>';
+                return;
+            }
+            
+            // Format date as YYYY-MM-DD (using last day of month)
+            const yearNum = parseInt(year);
+            const monthNum = parseInt(month);
+            
+            // Get date range from API if not loaded
+            if (!isDataLoaded) {
+                await loadPredictionsData();
+            }
+            
+            // Get available date range
+            const dateRange = await getDateRange();
+            const minYear = dateRange.min_date ? parseInt(dateRange.min_date.split('-')[0]) : 2005;
+            const maxYear = dateRange.max_date ? parseInt(dateRange.max_date.split('-')[0]) : 2031;
+            
+            if (yearNum < minYear || yearNum > maxYear) {
+                errorDiv.innerHTML = `<div class="error">❌ Year must be between ${minYear} and ${maxYear}</div>`;
+                return;
+            }
+            
+            // Show loading state
+            resultDiv.className = 'result-content loading';
+            resultDiv.innerHTML = '<div class="loading">🔄 Getting prediction...</div>';
+            
+            try {
+                // Get prediction from API
+                const prediction = await getPredictionForDate(yearNum, monthNum);
+                
+                if (!prediction) {
+                    errorDiv.innerHTML = '<div class="error">❌ No data available for the selected date</div>';
+                    resultDiv.className = 'result-content';
+                    resultDiv.innerHTML = '';
+                    return;
+                }
+                
+                // Format result
+                const options = { year: 'numeric', month: 'long' };
+                const displayDate = new Date(yearNum, monthNum - 1).toLocaleDateString('en-US', options);
+                const formattedPrice = '$' + prediction.price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                const dateStr = `${yearNum}-${monthNum.toString().padStart(2, '0')}`;
+                
+                resultDiv.className = 'result-content loaded';
+                resultDiv.innerHTML = `
+                    <div class="result-label">📊 Predicted Price</div>
+                    <div class="result-date">${displayDate}</div>
+                    <div class="result-price">${formattedPrice}</div>
+                    <div class="result-info">
+                        <p>Based on Random Forest model trained on 20+ years of historical data</p>
+                        <p style="margin-top: 10px; font-size: 0.85em;">Model Accuracy: 99.98% R² Score</p>
+                </div>
+            `;
+            
+            errorDiv.innerHTML = '<div class="success">✓ Prediction retrieved successfully!</div>';
+            
+            // Highlight point on chart
+            highlightChartPoint(dateStr);
+            } catch (error) {
+                console.error('Error getting prediction:', error);
+                errorDiv.innerHTML = '<div class="error">❌ Failed to get prediction. Please try again.</div>';
+                resultDiv.className = 'result-content';
+                resultDiv.innerHTML = '';
+            }
+        }
+
+        // Load data from API
+        async function loadPredictionsData() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/predictions`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                predictions = await response.json();
+                isDataLoaded = true;
+                console.log(`Loaded ${predictions.length} predictions`);
+                return predictions;
+            } catch (error) {
+                console.error('Error loading predictions:', error);
+                showError('Failed to load prediction data. Please check if the API server is running.');
+                return [];
+            }
+        }
+
+        // Get prediction for specific date
+        async function getPredictionForDate(year, month) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/predictions/${year}/${month}`);
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        return null; // No data for this date
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching prediction:', error);
+                return null;
+            }
+        }
+
+        // Get date range information
+        async function getDateRange() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/date-range`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching date range:', error);
+                return { min_date: null, max_date: null };
+            }
+        }
+        
+        function clearForm() {
+            document.getElementById('month').value = '';
+            document.getElementById('year').value = '';
+            document.getElementById('errorMessage').innerHTML = '';
+            document.getElementById('resultContent').className = 'result-content empty';
+            document.getElementById('resultContent').innerHTML = '<p>👆 Select month and year to see the predicted price</p>';
+        }
+        
+        async function showChart(type) {
+            // Update active tab
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            const activeButton = document.querySelector(`.tab-btn[data-type="${type}"]`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
+            
+            // Load data if not already loaded
+            if (!isDataLoaded) {
+                await loadPredictionsData();
+            }
+            
+            // Filter data based on type
+            let filteredData;
+            if (type === 'future') {
+                filteredData = predictions.filter(p => p.type === 'predicted');
+            } else if (type === 'history') {
+                filteredData = predictions.filter(p => p.type === 'historical');
+            } else {
+                filteredData = predictions;
+            }
+            
+            drawChart(filteredData, type);
+        }
+
+        function handleTabClick(type) {
+            showChart(type).catch(e => console.error(e));
+        }
+        
+        function drawChart(data, type) {
+            const labels = data.map(d => {
+                const date = new Date(d.date);
+                return date.toLocaleDateString('en-US', { year: '2-digit', month: 'short' });
+            });
+            const prices = data.map(d => d.price);
+            
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+            
+            const isFuture = type === 'future' || type === 'all';
+            const borderColor = type === 'future' ? 'rgb(102, 126, 234)' : 'rgb(118, 75, 162)';
+            
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Home Price ($)',
+                        data: prices,
+                        borderColor: borderColor,
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 4,
+                        pointBackgroundColor: borderColor,
+                        pointBorderColor: 'white',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                font: { size: 12 },
+                                color: '#333'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                },
+                                font: { size: 11 }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Price ($)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: { size: 10 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function highlightChartPoint(dateStr) {
+            // This would highlight the specific point on the chart
+            // For now, chart updates when you change tabs
+        }
+        
+        // Initialize chart on page load
+        window.addEventListener('load', () => {
+            showChart('all');
+        });
+    </script>
+</body>
+</html>

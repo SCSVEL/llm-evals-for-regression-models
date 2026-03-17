@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Price Regression Model Results</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .metrics-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .metric-card h3 {
+            color: #333;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        .metric-card .value {
+            color: #667eea;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .image-container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .image-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .image-title {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+        
+        .image-content {
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .image-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        
+        .csv-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .csv-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        table tr:hover {
+            background: #f0f0f0;
+        }
+        
+        table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .model-info {
+            background: #e8eef7;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        
+        .model-info h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .model-info p {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .image-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            header h1 {
+                font-size: 1.8em;
+            }
+            
+            .metrics-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏠 Home Price Regression Model</h1>
+            <p>State College, PA - Comprehensive Evaluation & Predictions</p>
+        </header>
+        
+        <div class="content">
+            <!-- Model Information -->
+            <div class="section">
+                <div class="model-info">
+                    <h3>Model Overview</h3>
+                    <p><strong>Model Type:</strong> Random Forest Regressor</p>
+                    <p><strong>Dataset:</strong> Zillow Home Value Index (ZHVI) - State College, PA Metro</p>
+                    <p><strong>Period:</strong> July 2005 - January 2026 (20+ years of data)</p>
+                    <p><strong>Training Strategy:</strong> Hyperparameter tuning with GridSearchCV and cross-validation</p>
+                </div>
+            </div>
+            
+            <!-- Performance Metrics -->
+            <div class="section">
+                <h2>📊 Performance Metrics</h2>
+                <div class="metrics-container">
+                    <div class="metric-card">
+                        <h3>R² Score</h3>
+                        <div class="value">0.9998</div>
+                        <p style="color: #666; font-size: 0.85em; margin-top: 5px;">99.98% variance explained</p>
+                    </div>
+                    <div class="metric-card">
+                        <h3>RMSE</h3>
+                        <div class="value">790.37</div>
+                        <p style="color: #666; font-size: 0.85em; margin-top: 5px;">Root Mean Squared Error</p>
+                    </div>
+                    <div class="metric-card">
+                        <h3>MAE</h3>
+                        <div class="value">567.52</div>
+                        <p style="color: #666; font-size: 0.85em; margin-top: 5px;">Mean Absolute Error</p>
+                    </div>
+                    <div class="metric-card">
+                        <h3>MAPE</h3>
+                        <div class="value">0.24%</div>
+                        <p style="color: #666; font-size: 0.85em; margin-top: 5px;">Mean Absolute Percentage Error</p>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Explained Variance</h3>
+                        <div class="value">0.9998</div>
+                        <p style="color: #666; font-size: 0.85em; margin-top: 5px;">Score</p>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Median Abs Error</h3>
+                        <div class="value">453.27</div>
+                        <p style="color: #666; font-size: 0.85em; margin-top: 5px;">Robust Error Metric</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Visualizations -->
+            <div class="section">
+                <h2>📈 Model Visualizations</h2>
+                
+                <div class="image-grid">
+                    <div class="image-container">
+                        <div class="image-title">Residuals Analysis</div>
+                        <div class="image-content">
+                            <img src="residuals_Home_Price_Model.png" alt="Residuals Analysis">
+                            <p style="color: #666; font-size: 0.9em; margin-top: 10px;">Distribution and patterns of prediction errors</p>
+                        </div>
+                    </div>
+                    
+                    <div class="image-container">
+                        <div class="image-title">Learning Curves</div>
+                        <div class="image-content">
+                            <img src="learning_curve_Home_Price_Model.png" alt="Learning Curves">
+                            <p style="color: #666; font-size: 0.9em; margin-top: 10px;">Training vs validation performance over sample size</p>
+                        </div>
+                    </div>
+                    
+                    <div class="image-container">
+                        <div class="image-title">Feature Importance</div>
+                        <div class="image-content">
+                            <img src="feature_importance_Home_Price_Model.png" alt="Feature Importance">
+                            <p style="color: #666; font-size: 0.9em; margin-top: 10px;">Contribution of each feature to predictions</p>
+                        </div>
+                    </div>
+                    
+                    <div class="image-container">
+                        <div class="image-title">SHAP Summary</div>
+                        <div class="image-content">
+                            <img src="shap_summary_Home_Price_Model.png" alt="SHAP Summary">
+                            <p style="color: #666; font-size: 0.9em; margin-top: 10px;">Model explainability - SHAP values for interpretability</p>
+                        </div>
+                    </div>
+                    
+                    <div class="image-container">
+                        <div class="image-title">Partial Dependence Plot</div>
+                        <div class="image-content">
+                            <img src="partial_dependence_Home_Price_Model.png" alt="Partial Dependence">
+                            <p style="color: #666; font-size: 0.9em; margin-top: 10px;">Marginal effect of features on predictions</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Key Insights -->
+            <div class="section">
+                <h2>🔍 Key Insights</h2>
+                <div class="model-info">
+                    <h3>Model Performance Summary</h3>
+                    <p>✓ <strong>Exceptional Accuracy:</strong> The model achieves an R² score of 0.9998, explaining 99.98% of the variance in home prices.</p>
+                    <p>✓ <strong>Low Prediction Errors:</strong> With an MAE of $567.52, the model's predictions are highly accurate.</p>
+                    <p>✓ <strong>Stable Performance:</strong> Low cross-validation standard deviation indicates consistent generalization.</p>
+                    <p>✓ <strong>Time-Based Features:</strong> The time_index feature is the primary driver of predictions, reflecting the temporal trend in home prices.</p>
+                    <p>✓ <strong>Production Ready:</strong> The model is suitable for deployment with excellent explainability via SHAP and LIME.</p>
+                </div>
+            </div>
+            
+            <!-- Evaluation Metrics Details -->
+            <div class="section">
+                <h2>📋 Detailed Metrics</h2>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Value</th>
+                            <th>Interpretation</th>
+                        </tr>
+                        <tr>
+                            <td>R² Score</td>
+                            <td>0.9998</td>
+                            <td>Model explains 99.98% of variance - excellent fit</td>
+                        </tr>
+                        <tr>
+                            <td>MAE (Mean Absolute Error)</td>
+                            <td>$567.52</td>
+                            <td>Average prediction error in dollars</td>
+                        </tr>
+                        <tr>
+                            <td>MSE (Mean Squared Error)</td>
+                            <td>624,687.80</td>
+                            <td>Penalizes larger errors more heavily</td>
+                        </tr>
+                        <tr>
+                            <td>RMSE (Root Mean Squared Error)</td>
+                            <td>$790.37</td>
+                            <td>Standard deviation of prediction errors</td>
+                        </tr>
+                        <tr>
+                            <td>MAPE (Mean Absolute Percentage Error)</td>
+                            <td>0.24%</td>
+                            <td>Average percentage error - only 0.24% off on average</td>
+                        </tr>
+                        <tr>
+                            <td>Explained Variance</td>
+                            <td>0.9998</td>
+                            <td>Proportion of output variance explained</td>
+                        </tr>
+                        <tr>
+                            <td>Median Absolute Error</td>
+                            <td>$453.27</td>
+                            <td>Robust error metric less affected by outliers</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Data Files -->
+            <div class="section">
+                <h2>📁 Generated Files</h2>
+                <div class="model-info">
+                    <h3>Output Files Available</h3>
+                    <p>✓ <strong>metrics_Home_Price_Model.csv</strong> - Detailed evaluation metrics</p>
+                    <p>✓ <strong>future_price_predictions.csv</strong> - Next 5 years of price predictions</p>
+                    <p>✓ <strong>best_home_price_model.pkl</strong> - Trained model for inference</p>
+                    <p>✓ <strong>residuals_Home_Price_Model.png</strong> - Residual analysis plots</p>
+                    <p>✓ <strong>learning_curve_Home_Price_Model.png</strong> - Training dynamics</p>
+                    <p>✓ <strong>shap_summary_Home_Price_Model.png</strong> - Model interpretation via SHAP</p>
+                    <p>✓ <strong>feature_importance_Home_Price_Model.png</strong> - Feature rankings</p>
+                    <p>✓ <strong>partial_dependence_Home_Price_Model.png</strong> - Feature effects visualization</p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>🏠 Home Price Regression Model | LLM Evals for Regression | Generated: March 16, 2026</p>
+            <p style="font-size: 0.9em; margin-top: 10px; opacity: 0.7;">Data Source: Zillow Home Value Index (State College, PA Metro)</p>
+        </footer>
+    </div>
+</body>
+</html>
